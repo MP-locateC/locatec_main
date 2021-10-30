@@ -14,4 +14,8 @@
 .cxx
 local.properties
 
-app/*/res/values/google_maps_api.xml
+app/main/res/values/google_maps_api.xml
+app/debug/res/values/google_maps_api.xml
+app/release/res/values/google_maps_api.xml
+app/test/res/values/google_maps_api.xml
+app/androidTest/res/values/google_maps_api.xml
