@@ -2,7 +2,10 @@ package com.example.locatec;
 
 import androidx.fragment.app.FragmentActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -14,8 +17,11 @@ import com.example.locatec.databinding.ActivityMapsBinding;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
+    private LatLng school = new LatLng(37.63232307069136, 127.07801836259382);
     private GoogleMap mMap;
     private ActivityMapsBinding binding;
+
+    Button gotoReport, gotoClosest;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,6 +34,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        // connect buttons
+        gotoReport = (Button) findViewById(R.id.gotoReport);
+        gotoClosest = (Button) findViewById(R.id.gotoClosest);
+
+        gotoReport.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getApplicationContext(), ReportPage.class);
+                startActivity(intent);
+            }
+        });
     }
 
     /**
@@ -44,8 +62,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap = googleMap;
 
         // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+        mMap.addMarker(new MarkerOptions().position(school).title("Marker in School"));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(school, 17));
+
     }
 }
