@@ -73,7 +73,7 @@ public class CustomInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
         ImageView iv = (ImageView) v.findViewById(R.id.infoWindowImage);
 
         Picasso.with(context)
-                .load(marker.getSnippet())
+                .load(marker.getSnippet()).resize(160, 120).centerCrop()
                 .into(iv, new MarkerCallback(marker));
 
         return v;
