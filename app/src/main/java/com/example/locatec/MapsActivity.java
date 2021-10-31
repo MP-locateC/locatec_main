@@ -3,6 +3,8 @@ package com.example.locatec;
 import androidx.fragment.app.FragmentActivity;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -11,17 +13,36 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.example.locatec.databinding.ActivityMapsBinding;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
-    private LatLng school = new LatLng(37.63232307069136, 127.07801836259382);
+    // 데이터들
+    MarkerData temp[] = {
+            new MarkerData(0,"smoke", "", 37.629635550859, 127.08086267102873),
+            new MarkerData(1,"trash", "",37.630682295065505, 127.0804025572257),
+            new MarkerData(2,"smoke", "",37.63133962861005, 127.07673969062887),
+            new MarkerData(3,"trash", "",37.63311154223848, 127.07690659454285),
+            new MarkerData(4,"smoke", "",37.633976049288925, 127.08052886291345),
+            new MarkerData(5,"trash", "",37.634836974008856, 127.07739828481888),
+            new MarkerData(6,"smoke", "",37.6349341635446, 127.07542743118924)};
+    private LatLng schoolCenterCoord = new LatLng(37.63232307069136, 127.07801836259382);
+    private LatLng userCoord= new LatLng(37.63232307069136, 127.07801836259382);
+    int curMarkerType = 0;
+    Bitmap smokingMarkerImage, userMarkerImage, trashMarkerImage;
+
+    // 위젯들
+    Button gotoReport, gotoClosest;
     private GoogleMap mMap;
     private ActivityMapsBinding binding;
-
-    Button gotoReport, gotoClosest;
+    List<Marker> curMarker = new ArrayList<Marker>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,11 +55,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
+        
         // connect buttons
         gotoReport = (Button) findViewById(R.id.gotoReport);
         gotoClosest = (Button) findViewById(R.id.gotoClosest);
 
+        // 추가 요청 페이지로
         gotoReport.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -46,24 +68,56 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 startActivity(intent);
             }
         });
+
+        // 가장 가까운 곳.
+        gotoClosest.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int closest = -1;
+                double d = 2000000;
+
+                for(int i = 0; i<curMarker.size(); i++) {
+                    double distance = ((userCoord.latitude - curMarker.get(i).getPosition().latitude)* (userCoord.latitude - curMarker.get(i).getPosition().latitude)) +
+                            ((userCoord.latitude - curMarker.get(i).getPosition().latitude)* (userCoord.latitude - curMarker.get(i).getPosition().latitude));
+                    if(d > distance) {
+                        d = distance;
+                        closest = i;
+                    }
+                }
+
+                int finalClosest = closest;
+                mMap.animateCamera(CameraUpdateFactory.newLatLng(curMarker.get(closest).getPosition()), 500, new GoogleMap.CancelableCallback() {
+                    @Override
+                    public void onFinish() {
+                        curMarker.get(finalClosest).showInfoWindow();
+                    }
+
+                    @Override
+                    public void onCancel() {
+                    }
+                });
+            }
+        });
     }
 
     /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
+     * 지도 로드 시 실행
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(schoolCenterCoord, 18));
 
-        // Add a marker in Sydney and move the camera
-        mMap.addMarker(new MarkerOptions().position(school).title("Marker in School"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(school, 17));
+        // 마커 이미지 불러오기
+        smokingMarkerImage = Bitmap.createScaledBitmap(((BitmapDrawable)getResources().getDrawable(R.drawable.map_marker_smoking)).getBitmap(), 120, 120, false);
+        trashMarkerImage = Bitmap.createScaledBitmap(((BitmapDrawable)getResources().getDrawable(R.drawable.map_marker_trash)).getBitmap(), 120, 120, false);
+        userMarkerImage = Bitmap.createScaledBitmap(((BitmapDrawable)getResources().getDrawable(R.drawable.map_marker_user)).getBitmap(), 120, 120, false);
 
+        // 나중에 서버에서 가져와서 넣기
+        for(int i = 0; i<temp.length; i++) {
+            if(temp[i].type == curMarkerType) {
+                curMarker.add(mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromBitmap(smokingMarkerImage)).position(temp[i].coord).title("Marker_" + i)));
+            }
+        }
     }
 }
