@@ -40,7 +40,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".ReportPage" android:theme="@style/AppFullScreenTheme">
+        <activity android:name=".ScreenSlidePagerActivity">
         </activity>
     </application>
 

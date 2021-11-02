@@ -99,7 +99,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         gotoReport.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(getApplicationContext(), ReportPage.class);
+                Intent intent = new Intent(getApplicationContext(), ScreenSlidePagerActivity.class);
                 startActivity(intent);
             }
         });
