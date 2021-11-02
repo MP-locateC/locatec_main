@@ -172,9 +172,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-
         mMap.setInfoWindowAdapter(new CustomInfoWindowAdapter(getApplicationContext()));
-
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(schoolCenterCoord, 18));
 
         // 마커 이미지 불러오기
