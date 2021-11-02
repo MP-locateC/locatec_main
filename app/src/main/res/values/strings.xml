@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">locatec</string>
     <string name="title_activity_maps">Map</string>
+    <string name="menu_item_smoking">흡연구역</string>
+    <string name="menu_item_trashcan">쓰레기통</string>
+    <string name="smoke_type">smoke</string>
+    <string name="trashcan_type">trash</string>
 </resources>

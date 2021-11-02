@@ -41,39 +41,43 @@
             android:layout_alignParentBottom="true"
             android:layout_marginLeft="10dp"
             android:layout_marginBottom="80dp"
-            app:backgroundTint="#DEB90005"
+            app:backgroundTint="@color/st_red"
             app:cornerRadius="30dp"
-            app:icon="@android:drawable/ic_menu_send"
+            app:icon="@drawable/ic_baseline_near_me_24"
             app:iconTint="@color/white" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/gotoReport"
             android:layout_width="60dp"
             android:layout_height="70dp"
-            app:cornerRadius="30dp"
-            app:backgroundTint="#0A1F62"
             android:layout_alignParentStart="true"
             android:layout_alignParentLeft="true"
             android:layout_alignParentBottom="true"
             android:layout_marginLeft="10dp"
             android:layout_marginBottom="10dp"
-            app:icon="@android:drawable/ic_input_add"  />
+            app:backgroundTint="@color/st_blue"
+            app:cornerRadius="30dp"
+            app:icon="@android:drawable/ic_input_add" />
 
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
+        <com.leinardi.android.speeddial.SpeedDialView
             android:id="@+id/changeMarker"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:layout_alignParentEnd="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
             android:layout_alignParentRight="true"
             android:layout_alignParentBottom="true"
-            android:layout_marginEnd="10dp"
-            android:layout_marginRight="10dp"
-            android:layout_marginBottom="10dp"
-            android:clickable="true"
-            android:src="@android:drawable/ic_menu_add"
-            app:backgroundTint="#8F8F8F" />
+            android:layout_marginRight="0dp"
+            android:layout_marginBottom="0dp"
 
-</RelativeLayout>
+            app:sdMainFabClosedBackgroundColor="@color/st_gray"
+            app:sdMainFabOpenedBackgroundColor="@color/st_gray"
+            app:sdMainFabClosedIconColor="@color/white"
+            app:sdMainFabOpenedIconColor="@color/white"
+
+
+            android:layout_gravity="bottom|end"
+            app:sdMainFabClosedSrc="@drawable/ic_baseline_smoking_rooms_24" />
+
+    </RelativeLayout>
 
 </LinearLayout>

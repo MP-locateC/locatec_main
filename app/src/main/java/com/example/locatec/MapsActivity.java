@@ -1,11 +1,13 @@
 package com.example.locatec;
 
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -19,6 +21,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.example.locatec.databinding.ActivityMapsBinding;
+import com.leinardi.android.speeddial.SpeedDialActionItem;
+import com.leinardi.android.speeddial.SpeedDialView;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
@@ -30,15 +34,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     // 데이터들
     MarkerData temp[] = {
             new MarkerData(0,"smoke", "https://newsimg.hankookilbo.com/cms/articlerelease/2015/10/18/201510182224437401_1.jpg", 37.629635550859, 127.08086267102873),
-            new MarkerData(1,"trash", "http://img.danawa.com/prod_img/500000/736/826/img/11826736_1.jpg?shrink=330:330&_v=20210728170639",37.630682295065505, 127.0804025572257),
+            new MarkerData(1,"trash", "https://www.costco.co.kr/medias/sys_master/images/hb9/hb8/15318005022750.jpg",37.630682295065505, 127.0804025572257),
             new MarkerData(2,"smoke", "https://newsimg.hankookilbo.com/cms/articlerelease/2015/10/18/201510182224437401_1.jpg",37.63133962861005, 127.07673969062887),
-            new MarkerData(3,"trash", "http://img.danawa.com/prod_img/500000/736/826/img/11826736_1.jpg?shrink=330:330&_v=20210728170639",37.63311154223848, 127.07690659454285),
+            new MarkerData(3,"trash", "https://www.costco.co.kr/medias/sys_master/images/hb9/hb8/15318005022750.jpg",37.63311154223848, 127.07690659454285),
             new MarkerData(4,"smoke", "https://newsimg.hankookilbo.com/cms/articlerelease/2015/10/18/201510182224437401_1.jpg",37.633976049288925, 127.08052886291345),
-            new MarkerData(5,"trash", "http://img.danawa.com/prod_img/500000/736/826/img/11826736_1.jpg?shrink=330:330&_v=20210728170639",37.634836974008856, 127.07739828481888),
+            new MarkerData(5,"trash", "https://www.costco.co.kr/medias/sys_master/images/hb9/hb8/15318005022750.jpg",37.634836974008856, 127.07739828481888),
             new MarkerData(6,"smoke", "https://newsimg.hankookilbo.com/cms/articlerelease/2015/10/18/201510182224437401_1.jpg",37.6349341635446, 127.07542743118924)};
     private LatLng schoolCenterCoord = new LatLng(37.63232307069136, 127.07801836259382);
     private LatLng userCoord= new LatLng(37.63232307069136, 127.07801836259382);
-    int curMarkerType = 0;
+    int curMarkerType = -1;
     Bitmap smokingMarkerImage, userMarkerImage, trashMarkerImage;
 
     // 위젯들
@@ -46,6 +50,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private GoogleMap mMap;
     private ActivityMapsBinding binding;
     List<Marker> curMarker = new ArrayList<Marker>();
+    SpeedDialView speedDialView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,7 +63,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-        
+
+        buttonsConnection();
+        speedDialConnection();
+    }
+
+    private void buttonsConnection() {
         // connect buttons
         gotoReport = (Button) findViewById(R.id.gotoReport);
         gotoClosest = (Button) findViewById(R.id.gotoClosest);
@@ -102,6 +112,37 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
     }
+    private void speedDialConnection() {
+        speedDialView = (SpeedDialView) findViewById(R.id.changeMarker);
+
+        speedDialView.addActionItem(
+                new SpeedDialActionItem.Builder(R.id.action_smoke, R.drawable.ic_baseline_smoking_rooms_24)
+                        .setFabBackgroundColor(0xffb8b8b8).setFabImageTintColor(0xffffffff)
+                        .setLabel(R.string.menu_item_smoking)
+                        .create());
+        speedDialView.addActionItem(
+                new SpeedDialActionItem.Builder(R.id.action_trash, R.drawable.ic_baseline_delete_24)
+                        .setFabBackgroundColor(0xffb8b8b8).setFabImageTintColor(0xffffffff)
+                        .setLabel(R.string.menu_item_trashcan)
+                        .create());
+
+        speedDialView.setOnActionSelectedListener(new SpeedDialView.OnActionSelectedListener() {
+            @Override
+            public boolean onActionSelected(SpeedDialActionItem actionItem) {
+                switch((actionItem.getId())) {
+                    case R.id.action_smoke:
+                        speedDialView.setMainFabClosedDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_baseline_smoking_rooms_24));
+                        markerTypeChange(0);
+                        break;
+                    case R.id.action_trash:
+                        speedDialView.setMainFabClosedDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_baseline_delete_24));
+                        markerTypeChange(1);
+                        break;
+                }
+                return false;
+            }
+        });
+    }
 
     /**
      * 지도 로드 시 실행
@@ -120,13 +161,25 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         userMarkerImage = Bitmap.createScaledBitmap(((BitmapDrawable)getResources().getDrawable(R.drawable.map_marker_user)).getBitmap(), 120, 120, false);
 
         // 나중에 서버에서 가져와서 넣기
+        markerTypeChange(0);
+    }
+
+    private void markerTypeChange(int to) {
+        if(curMarkerType == to)
+            return;
+        curMarkerType = to;
+        Bitmap markerImg = curMarkerType == 0 ? smokingMarkerImage : trashMarkerImage;
+        for(int i =0; i<curMarker.size(); i++) {
+            curMarker.get(i).remove();
+        }
+        curMarker.clear();
         for(int i = 0; i<temp.length; i++) {
             if(temp[i].type == curMarkerType) {
                 curMarker.add(mMap.addMarker(
                         new MarkerOptions().
-                        icon(BitmapDescriptorFactory.fromBitmap(smokingMarkerImage)).
-                        position(temp[i].coord).title("Marker_" + i).
-                        snippet(temp[i].image)));
+                                icon(BitmapDescriptorFactory.fromBitmap(markerImg)).
+                                position(temp[i].coord).title("Marker_" + i).
+                                snippet(temp[i].image)));
             }
         }
     }

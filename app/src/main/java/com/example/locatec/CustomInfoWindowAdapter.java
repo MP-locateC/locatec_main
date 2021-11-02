@@ -29,42 +29,6 @@ public class CustomInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
         this.context = context;
     }
 
-    private class DownloadFilesTask extends AsyncTask<String,Void, Bitmap> {
-        ImageView iv_image;
-        private Marker marker;
-
-        public DownloadFilesTask(ImageView iv, Marker marker) {
-            this.iv_image = iv;
-            this.marker = marker;
-        }
-
-        @Override
-        protected Bitmap doInBackground(String... img_urls) {
-            Bitmap bmp = null;
-            try {
-                URL url = new URL(img_urls[0]);
-                bmp = BitmapFactory.decodeStream(url.openConnection().getInputStream());
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return bmp;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-        }
-
-        @Override
-        protected void onPostExecute(Bitmap result) {
-            // doInBackground 에서 받아온 total 값 사용 장소
-            iv_image.setImageBitmap(result);
-            marker.showInfoWindow();
-        }
-    }
-
     @Override
     public View getInfoWindow(Marker marker) {
         // Getting view from the layout file
