@@ -8,14 +8,16 @@ import android.widget.Button;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.button.MaterialButton;
+
 public class ReportPage extends AppCompatActivity {
 
-    Button goBack;
+    MaterialButton goBack;
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.report_page);
 
-        goBack = (Button) findViewById(R.id.goBack);
+        goBack = (MaterialButton) findViewById(R.id.goBack);
 
 
         goBack.setOnClickListener(new View.OnClickListener() {

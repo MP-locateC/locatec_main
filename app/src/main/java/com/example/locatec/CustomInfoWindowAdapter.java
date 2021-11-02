@@ -34,6 +34,11 @@ public class CustomInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
         // Getting view from the layout file
         View v = inflater.inflate(R.layout.info_window_layout, null);
 
+        String url = marker.getSnippet();
+        if(url == null || url.isEmpty()) {
+            return null;
+        }
+
         ImageView iv = (ImageView) v.findViewById(R.id.infoWindowImage);
 
         Picasso.with(context)

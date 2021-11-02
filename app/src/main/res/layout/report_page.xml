@@ -11,16 +11,14 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/goBack"
-            style="?android:attr/borderlessButtonStyle"
             android:layout_width="50dp"
             android:layout_height="wrap_content"
-            android:drawableTint="#000000"
-            android:drawableTintMode="src_in"
-            android:tint="@color/black"
+            app:backgroundTint="@color/white"
+            app:cornerRadius="30dp"
             app:icon="?attr/homeAsUpIndicator"
-            app:iconTint="@color/black" />
+            app:iconTint="@color/black"/>
 
         <TextView
             android:id="@+id/titleText"
