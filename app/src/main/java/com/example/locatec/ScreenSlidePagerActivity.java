@@ -1,5 +1,6 @@
 package com.example.locatec;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -14,8 +15,9 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.google.android.gms.maps.model.LatLng;
 
 public class ScreenSlidePagerActivity extends FragmentActivity {
+    public static Context viewPagerContext;
     private static final int NUM_PAGES = 3;
-    private ViewPager2 viewPager;
+    public ViewPager2 viewPager;
     private FragmentStateAdapter pagerAdapter;
     ReportFirstPage firstPage;
     ReportSecondPage secondPage;
@@ -30,17 +32,32 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
         goBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.d("과연 접근 가능?", firstPage.pickCoord.toString());
-                /*
                 Intent intent = new Intent(getApplicationContext(), MapsActivity.class);
                 startActivity(intent);
-            */}
+            }
         });
 
         // Instantiate a ViewPager2 and a PagerAdapter.
         viewPager = findViewById(R.id.pager);
         pagerAdapter = new ScreenSlidePagerAdapter(this);
         viewPager.setAdapter(pagerAdapter);
+        viewPager.setUserInputEnabled(false);
+        viewPagerContext = this;
+    }
+
+    public void goNext() {
+        viewPager.setCurrentItem(viewPager.getCurrentItem() + 1);
+    }
+    public void goFirst() {
+        viewPager.setCurrentItem(0);
+    }
+    public boolean submit() {
+        if(secondPage.isAddingImage) {
+            // 이미지가 제대로 들어있는지 확인
+           return false;
+        }
+
+        return true;
     }
 
     @Override

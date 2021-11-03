@@ -3,6 +3,7 @@ package com.example.locatec;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,6 +36,14 @@ public class ReportFirstPage extends Fragment {
                              Bundle savedInstanceState) {
         View v = (ViewGroup) inflater.inflate(
                 R.layout.report_firstpage, container, false);
+
+         goNext = (Button) v.findViewById(R.id.goNext);
+         goNext.setOnClickListener(new View.OnClickListener() {
+             @Override
+             public void onClick(View view) {
+                 ((ScreenSlidePagerActivity)ScreenSlidePagerActivity.viewPagerContext).goNext();
+             }
+         });
 
         mapview = (MapView) v.findViewById(R.id.mapView);
         mapview.onCreate(savedInstanceState);
