@@ -49,7 +49,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             new MarkerData(4,"smoke", "https://newsimg.hankookilbo.com/cms/articlerelease/2015/10/18/201510182224437401_1.jpg",37.633976049288925, 127.08052886291345),
             new MarkerData(5,"trash", "https://www.costco.co.kr/medias/sys_master/images/hb9/hb8/15318005022750.jpg",37.634836974008856, 127.07739828481888),
             new MarkerData(6,"smoke", "https://newsimg.hankookilbo.com/cms/articlerelease/2015/10/18/201510182224437401_1.jpg",37.6349341635446, 127.07542743118924)};
-    int curMarkerType = -1;
+    int curMarkerType = 0;
     Bitmap smokingMarkerImage, userMarkerImage, trashMarkerImage;
 
     // 위치 관련
@@ -181,7 +181,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         userMarkerImage = Bitmap.createScaledBitmap(((BitmapDrawable)getResources().getDrawable(R.drawable.map_marker_user)).getBitmap(), 120, 120, false);
 
         // 나중에 서버에서 가져와서 넣기
-        markerTypeChange(0);
+        markerRender();
         if(isInside) {
             mMap.animateCamera(CameraUpdateFactory.newLatLng(userCoord));
             mMap.addMarker(new MarkerOptions().
@@ -190,10 +190,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
-    private void markerTypeChange(int to) {
-        if(curMarkerType == to)
-            return;
-        curMarkerType = to;
+    private void markerRender() {
         Bitmap markerImg = curMarkerType == 0 ? smokingMarkerImage : trashMarkerImage;
         for(int i =0; i<curMarker.size(); i++) {
             curMarker.get(i).remove();
@@ -208,6 +205,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                 snippet(temp[i].image)));
             }
         }
+    }
+    private void markerTypeChange(int to) {
+        if(curMarkerType == to)
+            return;
+        curMarkerType = to;
+        markerRender();
     }
 
     private void getFirstUserLocation() {
