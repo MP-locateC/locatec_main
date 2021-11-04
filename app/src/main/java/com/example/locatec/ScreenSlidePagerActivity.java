@@ -21,6 +21,7 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
     private FragmentStateAdapter pagerAdapter;
     ReportFirstPage firstPage;
     ReportSecondPage secondPage;
+    ReportThirdPage thirdPage;
     Button goBack;
     FrameLayout loadingOvarlay;
 
@@ -54,9 +55,20 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
     public void goFirst() {
         viewPager.setCurrentItem(0);
     }
+    public void goHome() {
+        Intent intent = new Intent(getApplicationContext(), MapsActivity.class);
+        startActivity(intent);
+    }
     public boolean submit() {
         loadingOvarlay.setVisibility(View.VISIBLE);
-
+        new Thread(() -> {
+            try {
+                Thread.sleep(5000); loadingOvarlay.setVisibility(View.INVISIBLE);
+            }
+            catch (Exception e){
+                System.err.println(e);
+            }
+        }).start();
         if(secondPage.isAddingImage) {
             // 이미지가 제대로 들어있는지 확인
            return false;
@@ -95,6 +107,9 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
                 case 1:
                     secondPage = new ReportSecondPage();
                     return secondPage;
+                case 2:
+                    thirdPage = new ReportThirdPage();
+                    return thirdPage;
             }
             return new ReportSecondPage();
         }
