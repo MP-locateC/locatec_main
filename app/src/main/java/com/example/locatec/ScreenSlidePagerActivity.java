@@ -1,18 +1,18 @@
 package com.example.locatec;
 
+
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.FrameLayout;
 
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
-import com.google.android.gms.maps.model.LatLng;
 
 public class ScreenSlidePagerActivity extends FragmentActivity {
     public static Context viewPagerContext;
@@ -22,11 +22,14 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
     ReportFirstPage firstPage;
     ReportSecondPage secondPage;
     Button goBack;
+    FrameLayout loadingOvarlay;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.report_page);
+        loadingOvarlay = (FrameLayout) findViewById(R.id.loading_overlay);
+        loadingOvarlay.bringToFront();
 
         goBack = (Button) findViewById(R.id.goBack);
         goBack.setOnClickListener(new View.OnClickListener() {
@@ -52,6 +55,8 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
         viewPager.setCurrentItem(0);
     }
     public boolean submit() {
+        loadingOvarlay.setVisibility(View.VISIBLE);
+
         if(secondPage.isAddingImage) {
             // 이미지가 제대로 들어있는지 확인
            return false;

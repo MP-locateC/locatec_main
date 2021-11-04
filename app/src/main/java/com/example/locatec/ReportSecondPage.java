@@ -1,5 +1,7 @@
 package com.example.locatec;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -10,11 +12,15 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.fragment.app.Fragment;
 
+import com.bumptech.glide.Glide;
 import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.Arrays;
@@ -28,7 +34,7 @@ public class ReportSecondPage extends Fragment {
     ImageView userAddImage;
 
     //데이터
-    boolean isAddingImage;
+    boolean isAddingImage = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -90,7 +96,10 @@ public class ReportSecondPage extends Fragment {
                 isAddingImage = true;
                 // 이미지 불러오기
                 // 취소시, 그냥 아무것도 안함. 나중에 제출때 true이고, 이미지가 있을때만 제출
-
+                Intent intent = new Intent();
+                intent.setType("image/*");
+                intent.setAction(Intent.ACTION_PICK)   ;
+                someActivityResultLauncher.launch(intent);
             }
         });
         removeImageRBtn.setOnClickListener(new View.OnClickListener() {
@@ -100,8 +109,18 @@ public class ReportSecondPage extends Fragment {
                 userAddImage.setImageResource(android.R.color.transparent);
             }
         });
-
     }
+
+    ActivityResultLauncher<Intent> someActivityResultLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            new ActivityResultCallback<ActivityResult>() {
+                @Override
+                public void onActivityResult(ActivityResult result) {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        Glide.with(getContext()).load(result.getData().getData()).into(userAddImage);
+                    }
+                }
+            });
 
     public void bindingImage(View v) {
         userAddImage = (ImageView)v.findViewById(R.id.userAddImage);
