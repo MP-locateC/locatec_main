@@ -75,6 +75,7 @@ public class ReportFirstPage extends Fragment {
                     curMarker  = mMap.addMarker(new MarkerOptions().position(pickCoord).icon(BitmapDescriptorFactory.fromBitmap(markerImg)));
                 } else {
                     Toast.makeText(getContext(), "현재 학교 밖에 계십니다.", Toast.LENGTH_SHORT).show();
+                    curMarker  = mMap.addMarker(new MarkerOptions().position(schoolCenterCoord).icon(BitmapDescriptorFactory.fromBitmap(markerImg)));
                     pickCoord = new LatLng(37.63232307069136, 127.07801836259382);
                 }
 

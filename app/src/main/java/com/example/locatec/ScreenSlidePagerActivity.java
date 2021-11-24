@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
@@ -59,22 +60,21 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
         Intent intent = new Intent(getApplicationContext(), MapsActivity.class);
         startActivity(intent);
     }
-    public boolean submit() {
+    public void submit() {
         loadingOvarlay.setVisibility(View.VISIBLE);
         new Thread(() -> {
             try {
-                Thread.sleep(5000); loadingOvarlay.setVisibility(View.INVISIBLE);
+                if(secondPage.isAddingImage) {
+                    // 이미지가 제대로 들어있는지 확인
+                }
+                goNext();
+                loadingOvarlay.setVisibility(View.INVISIBLE);
             }
             catch (Exception e){
+                Toast.makeText(getApplicationContext(), "실패했습니다.", Toast.LENGTH_SHORT).show();
                 System.err.println(e);
             }
         }).start();
-        if(secondPage.isAddingImage) {
-            // 이미지가 제대로 들어있는지 확인
-           return false;
-        }
-
-        return true;
     }
 
     @Override

@@ -63,11 +63,7 @@ public class ReportSecondPage extends Fragment {
             @Override
             public void onClick(View view) {
                 // 제출 후
-                if(((ScreenSlidePagerActivity)ScreenSlidePagerActivity.viewPagerContext).submit()) {
-                    ((ScreenSlidePagerActivity)ScreenSlidePagerActivity.viewPagerContext).goNext();
-                } else {
-                    Toast.makeText(getContext(), "실패했습니다.", Toast.LENGTH_SHORT).show();
-                }
+                ((ScreenSlidePagerActivity)ScreenSlidePagerActivity.viewPagerContext).submit();
             }
         });
     }
