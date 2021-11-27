@@ -55,8 +55,7 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
         goBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(getApplicationContext(), MapsActivity.class);
-                startActivity(intent);
+                finish();
             }
         });
 
@@ -81,8 +80,7 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
     }
     // 홈페이지로 이동
     public void goHome() {
-        Intent intent = new Intent(getApplicationContext(), MapsActivity.class);
-        startActivity(intent);
+        finish();
     }
 
     // 서버로 제출
