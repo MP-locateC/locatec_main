@@ -35,6 +35,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -124,13 +125,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onClick(View view) {
                 int closest = -1;
+                BigDecimal dst = new BigDecimal("2000000");
                 double d = 2000000;
 
                 for(int i = 0; i<curMarker.size(); i++) {
-                    double distance = ((userCoord.latitude - curMarker.get(i).getPosition().latitude)* (userCoord.latitude - curMarker.get(i).getPosition().latitude)) +
-                            ((userCoord.latitude - curMarker.get(i).getPosition().latitude)* (userCoord.latitude - curMarker.get(i).getPosition().latitude));
-                    if(d > distance) {
-                        d = distance;
+                    BigDecimal curLat = new BigDecimal(userCoord.latitude - curMarker.get(i).getPosition().latitude);
+                    BigDecimal curLog = new BigDecimal(userCoord.longitude - curMarker.get(i).getPosition().longitude);
+                    BigDecimal latDiff = curLat.multiply(curLat);
+                    BigDecimal logDiff = curLog.multiply(curLog);
+
+                    if(dst.compareTo(latDiff.add(logDiff)) > 0 ) {
+                        dst = latDiff.add(logDiff);
                         closest = i;
                     }
                 }
