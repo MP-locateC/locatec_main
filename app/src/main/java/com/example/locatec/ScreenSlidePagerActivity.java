@@ -83,9 +83,18 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
         finish();
     }
 
+    // set loading visible
+    public void setLoadingVisible() {
+        loadingOvarlay.setVisibility(View.VISIBLE);
+    }
+    // set loading invisible
+    public void setLoadingInvisible() {
+        loadingOvarlay.setVisibility(View.INVISIBLE);
+    }
+
     // 서버로 제출
     public void submit() {
-        loadingOvarlay.setVisibility(View.VISIBLE);
+        setLoadingVisible();
         new Thread(() -> {
             try {
 
@@ -114,10 +123,9 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
                 Request request = new Request.Builder().url(getString(R.string.server_url) + "/product/register/request")
                         .post(RequestBody.create(JSON, body.toString())).build();
 
+                Handler handler = new Handler(Looper.getMainLooper());
                 client.newCall(request).enqueue(new Callback() {
                     //비동기 처리를 위해 Callback 구현
-                    Handler handler = new Handler(Looper.getMainLooper());
-
                     @Override
                     public void onFailure(Call call, IOException e) {
                         Log.d("error : ",  e.toString());
@@ -125,7 +133,7 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
                             @Override
                             public void run()
                             {
-                                loadingOvarlay.setVisibility(View.INVISIBLE);
+                                setLoadingInvisible();
                                 Toast.makeText(getApplicationContext(), "네트워크에러로 요청에 실패했습니다.\n잠시후 다시 시도해주세요", Toast.LENGTH_SHORT).show();
                             }
                         }, 0);
@@ -139,21 +147,31 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
                             if (jsonObj.getInt("status") != 200) {
                                 throw new Exception("failed with status over 400");
                             }
-                            goNext();
-                            loadingOvarlay.setVisibility(View.INVISIBLE);
-                        } catch(Exception e) {
+                            handler.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    goNext();
+                                    setLoadingInvisible();
+                                }
+                            }, 0);
+                        } catch (Exception e) {
                             if (e.getMessage() == "failed with status over 400") {
                                 handler.postDelayed(new Runnable() {
                                     @Override
-                                    public void run()
-                                    {
-                                        loadingOvarlay.setVisibility(View.INVISIBLE);
+                                    public void run() {
+                                        setLoadingInvisible();
                                         Toast.makeText(ScreenSlidePagerActivity.this, "어플리케이션 오류로 요청에 실패했습니다.\n관리자에게 수정을 요청하세요.", Toast.LENGTH_SHORT).show();
                                     }
                                 }, 0);
                             } else {
-                                goNext();
-                                loadingOvarlay.setVisibility(View.INVISIBLE);
+
+                                handler.postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        goNext();
+                                        setLoadingInvisible();
+                                    }
+                                }, 0);
                             }
                         }
                     }
