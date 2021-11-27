@@ -3,7 +3,6 @@ package com.example.locatec;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,7 +16,6 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
@@ -60,18 +58,16 @@ public class ReportFirstPage extends Fragment {
             @Override
             public void onMapReady(GoogleMap mMapInput) {
                 mMap = mMapInput;
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(schoolCenterCoord, 18));
 
                 markerImg = Bitmap.createScaledBitmap(
                         ((BitmapDrawable)getResources().getDrawable(R.drawable.map_marker)).getBitmap(),
                         120, 120, false);
 
+                // 사용자의 위치를 받아와서 학교 안이면 사용자의 위치를, 밖이면 학교 중심을 보여줌.
                 GpsTracker gpsTracker = new GpsTracker(getContext());
                 pickCoord = new LatLng(gpsTracker.getLatitude(), gpsTracker.getLongitude());
-                if (pickCoord.latitude <= schoolCenterCoord.latitude + 0.007 &&
-                        pickCoord.longitude <= schoolCenterCoord.longitude + 0.007 &&
-                        pickCoord.latitude >= schoolCenterCoord.latitude - 0.007 &&
-                        pickCoord.longitude >= schoolCenterCoord.longitude - 0.007
-                ) {
+                if (validateIsOnSchool(pickCoord)) {
                     curMarker  = mMap.addMarker(new MarkerOptions().position(pickCoord).icon(BitmapDescriptorFactory.fromBitmap(markerImg)));
                 } else {
                     Toast.makeText(getContext(), "현재 학교 밖에 계십니다.", Toast.LENGTH_SHORT).show();
@@ -79,17 +75,23 @@ public class ReportFirstPage extends Fragment {
                     pickCoord = new LatLng(37.63232307069136, 127.07801836259382);
                 }
 
+                // 카메라를 위에서 정한 사용자의 위치로 이동
                 CameraPosition cameraPosition = new CameraPosition.Builder().target(pickCoord).zoom(18).build();
                 mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 
+                // 맵을 클릭할때마다 그곳으로 마커를 찍고, 이동하도록 리스너 등록
                 mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
                     @Override
                     public void onMapClick(LatLng latLng) {
-                        pickCoord = latLng;
-                        curMarker.remove();
-                        curMarker = mMap.addMarker(new MarkerOptions().position(pickCoord).icon(BitmapDescriptorFactory.fromBitmap(markerImg)));
-                        CameraPosition cameraPosition = new CameraPosition.Builder().target(pickCoord).zoom(18).build();
-                        mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+                        if(validateIsOnSchool(latLng)) {
+                            pickCoord = latLng;
+                            curMarker.remove();
+                            curMarker = mMap.addMarker(new MarkerOptions().position(pickCoord).icon(BitmapDescriptorFactory.fromBitmap(markerImg)));
+                            CameraPosition cameraPosition = new CameraPosition.Builder().target(pickCoord).zoom(18).build();
+                            mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+                        } else {
+                            Toast.makeText(getContext(), "학교 안 또는 근처만 추가요청을 보낼 수 있습니다.", Toast.LENGTH_SHORT).show();
+                        }
                     }
                 });
             }
@@ -97,6 +99,19 @@ public class ReportFirstPage extends Fragment {
 
         return v;
     }
+
+    private boolean validateIsOnSchool(LatLng test) {
+        if (test.latitude <= schoolCenterCoord.latitude + 0.005 &&
+                test.longitude <= schoolCenterCoord.longitude + 0.005 &&
+                test.latitude >= schoolCenterCoord.latitude - 0.005 &&
+                test.longitude >= schoolCenterCoord.longitude - 0.005
+        ) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     @Override
     public void onResume() {
         super.onResume();

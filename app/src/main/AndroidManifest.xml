@@ -34,7 +34,7 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
 
-        <activity android:name=".SplashActivity" android:theme="@style/Theme.SplashActivityTheme">
+        <activity android:name=".SplashActivity" android:theme="@style/Theme.SplashActivityTheme" android:noHistory="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER"/>

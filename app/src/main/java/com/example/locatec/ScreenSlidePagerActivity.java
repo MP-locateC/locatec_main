@@ -3,7 +3,12 @@ package com.example.locatec;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.util.Base64;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
@@ -13,6 +18,19 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
+
+import org.json.JSONObject;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 
 public class ScreenSlidePagerActivity extends FragmentActivity {
@@ -50,31 +68,113 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
         viewPagerContext = this;
     }
 
+    // 다음 스크린으로 이동
     public void goNext() {
         viewPager.setCurrentItem(viewPager.getCurrentItem() + 1);
     }
+    // 첫 스크린으로 이동
     public void goFirst() {
         viewPager.setCurrentItem(0);
+        secondPage.userAddImage.setImageResource(android.R.color.transparent);
+        secondPage.isAddingImage = false;
+        secondPage.imageRadioGroup.check(R.id.removeImageButton);
     }
+    // 홈페이지로 이동
     public void goHome() {
         Intent intent = new Intent(getApplicationContext(), MapsActivity.class);
         startActivity(intent);
     }
+
+    // 서버로 제출
     public void submit() {
         loadingOvarlay.setVisibility(View.VISIBLE);
         new Thread(() -> {
             try {
-                if(secondPage.isAddingImage) {
-                    // 이미지가 제대로 들어있는지 확인
+
+                JSONObject body = new JSONObject();
+                String type = secondPage.getMenuText();
+                if(type == "흡연구역") {
+                    body.put("type", "smoking");
+                } else {
+                    body.put("type", "trash");
                 }
-                goNext();
-                loadingOvarlay.setVisibility(View.INVISIBLE);
+                body.put("latitude", firstPage.pickCoord.latitude);
+                body.put("longitude", firstPage.pickCoord.longitude);
+
+                // 이미지가 제대로 들어있으면 base64로 인코딩해서 body에 추가
+                if(secondPage.isAddingImage) {
+                    secondPage.userAddImage.buildDrawingCache();
+                    Bitmap bmap = secondPage.userAddImage.getDrawingCache();
+                    body.put("image", toBase64(bmap));
+                } else {
+                    body.put("image", null);
+                }
+
+                // 요청을 위한 request 생성
+                OkHttpClient client = new OkHttpClient();
+                MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+                Request request = new Request.Builder().url(getString(R.string.server_url) + "/product/register/request")
+                        .post(RequestBody.create(JSON, body.toString())).build();
+
+                client.newCall(request).enqueue(new Callback() {
+                    //비동기 처리를 위해 Callback 구현
+                    Handler handler = new Handler(Looper.getMainLooper());
+
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+                        Log.d("error : ",  e.toString());
+                        handler.postDelayed(new Runnable() {
+                            @Override
+                            public void run()
+                            {
+                                loadingOvarlay.setVisibility(View.INVISIBLE);
+                                Toast.makeText(getApplicationContext(), "네트워크에러로 요청에 실패했습니다.\n잠시후 다시 시도해주세요", Toast.LENGTH_SHORT).show();
+                            }
+                        }, 0);
+                    }
+
+                    // 성공 시 
+                    @Override
+                    public void onResponse(Call call, Response response)  throws IOException {
+                        try {
+                            JSONObject jsonObj = new JSONObject(response.body().string());
+                            if (jsonObj.getInt("status") != 200) {
+                                throw new Exception("failed with status over 400");
+                            }
+                            goNext();
+                            loadingOvarlay.setVisibility(View.INVISIBLE);
+                        } catch(Exception e) {
+                            if (e.getMessage() == "failed with status over 400") {
+                                handler.postDelayed(new Runnable() {
+                                    @Override
+                                    public void run()
+                                    {
+                                        loadingOvarlay.setVisibility(View.INVISIBLE);
+                                        Toast.makeText(ScreenSlidePagerActivity.this, "어플리케이션 오류로 요청에 실패했습니다.\n관리자에게 수정을 요청하세요.", Toast.LENGTH_SHORT).show();
+                                    }
+                                }, 0);
+                            } else {
+                                goNext();
+                                loadingOvarlay.setVisibility(View.INVISIBLE);
+                            }
+                        }
+                    }
+                });
             }
             catch (Exception e){
                 Toast.makeText(getApplicationContext(), "실패했습니다.", Toast.LENGTH_SHORT).show();
                 System.err.println(e);
             }
         }).start();
+    }
+
+    // bitmap 이미지를 base64로 바꿔줌.
+    public String toBase64(Bitmap bm) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bm.compress(Bitmap.CompressFormat.JPEG, 100, baos); //bm is the bitmap object
+        byte[] b = baos.toByteArray();
+
+        return Base64.encodeToString(b, Base64.NO_WRAP);
     }
 
     @Override

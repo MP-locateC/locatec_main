@@ -11,7 +11,7 @@ public class MarkerData {
     MarkerData(int id, String type, String image, double lat, double lng) {
         this.id = id;
         switch(type) {
-            case "smoke":
+            case "smoking":
                 this.type = 0;
                 break;
             case "trash":

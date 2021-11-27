@@ -12,8 +12,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
-import android.location.Address;
-import android.location.Geocoder;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
@@ -33,22 +31,17 @@ import com.example.locatec.databinding.ActivityMapsBinding;
 import com.leinardi.android.speeddial.SpeedDialActionItem;
 import com.leinardi.android.speeddial.SpeedDialView;
 
-import java.io.IOException;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     // 데이터들
-    MarkerData temp[] = {
-            new MarkerData(0,"smoke", "https://newsimg.hankookilbo.com/cms/articlerelease/2015/10/18/201510182224437401_1.jpg", 37.629635550859, 127.08086267102873),
-            new MarkerData(1,"trash", "https://www.costco.co.kr/medias/sys_master/images/hb9/hb8/15318005022750.jpg",37.630682295065505, 127.0804025572257),
-            new MarkerData(2,"smoke", "https://newsimg.hankookilbo.com/cms/articlerelease/2015/10/18/201510182224437401_1.jpg",37.63133962861005, 127.07673969062887),
-            new MarkerData(3,"trash", "https://www.costco.co.kr/medias/sys_master/images/hb9/hb8/15318005022750.jpg",37.63311154223848, 127.07690659454285),
-            new MarkerData(4,"smoke", "https://newsimg.hankookilbo.com/cms/articlerelease/2015/10/18/201510182224437401_1.jpg",37.633976049288925, 127.08052886291345),
-            new MarkerData(5,"trash", "https://www.costco.co.kr/medias/sys_master/images/hb9/hb8/15318005022750.jpg",37.634836974008856, 127.07739828481888),
-            new MarkerData(6,"smoke", "https://newsimg.hankookilbo.com/cms/articlerelease/2015/10/18/201510182224437401_1.jpg",37.6349341635446, 127.07542743118924)};
+    List<MarkerData> markers = new ArrayList<MarkerData>();
     int curMarkerType = 0;
     Bitmap smokingMarkerImage, userMarkerImage, trashMarkerImage;
 
@@ -81,15 +74,37 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             checkRunTimePermission();
         }
 
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
+        // 서버에서 받은 데이터를 파싱하여 마커로 등록.
+        try {
+            String response = getIntent().getStringExtra("markerDatas");
+            JSONObject jsonObj = new JSONObject(response);
+            JSONArray datas = jsonObj.getJSONArray("response");
 
+            for (int i = 0; i < datas.length(); i++) {
+                JSONObject obj = datas.getJSONObject(i);
+                Double longitude = obj.getDouble("longitude");
+                Double latitude = obj.getDouble("latitude");
+                String type = obj.getString("type");
+                String image = obj.getString("imageUrl");
+
+                markers.add(new MarkerData(obj.getInt("id"), type, image, latitude, longitude));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+        loadMap();
         buttonsConnection();
         speedDialConnection();
     }
 
+    private void loadMap() {
+        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
+    }
     private void buttonsConnection() {
         // connect buttons
         gotoReport = (Button) findViewById(R.id.gotoReport);
@@ -186,7 +201,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mMap.animateCamera(CameraUpdateFactory.newLatLng(userCoord));
             mMap.addMarker(new MarkerOptions().
                     icon(BitmapDescriptorFactory.fromBitmap(userMarkerImage)).
-                    position(userCoord));
+                    position(userCoord).title("현재 위치"));
         }
     }
 
@@ -196,13 +211,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             curMarker.get(i).remove();
         }
         curMarker.clear();
-        for(int i = 0; i<temp.length; i++) {
-            if(temp[i].type == curMarkerType) {
+        for(int i = 0; i<markers.size(); i++) {
+            if(markers.get(i).type == curMarkerType) {
                 curMarker.add(mMap.addMarker(
                         new MarkerOptions().
                                 icon(BitmapDescriptorFactory.fromBitmap(markerImg)).
-                                position(temp[i].coord).title("Marker_" + i).
-                                snippet(temp[i].image)));
+                                position(markers.get(i).coord).title("Marker_" + i).
+                                snippet(markers.get(i).image)));
             }
         }
     }
@@ -213,13 +228,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         markerRender();
     }
 
+    // 유저의 위치를 받아서 학교 안 또는 근처면 유저의 위치를, 아니면 학교 중심으로 이동
     private void getFirstUserLocation() {
         gpsTracker = new GpsTracker(MapsActivity.this);
         userCoord = new LatLng(gpsTracker.getLatitude(), gpsTracker.getLongitude());
-        if (userCoord.latitude <= schoolCenterCoord.latitude + 0.007 &&
-                userCoord.longitude <= schoolCenterCoord.longitude + 0.007 &&
-                userCoord.latitude >= schoolCenterCoord.latitude - 0.007 &&
-                userCoord.longitude >= schoolCenterCoord.longitude - 0.007
+        if (userCoord.latitude <= schoolCenterCoord.latitude + 0.005 &&
+                userCoord.longitude <= schoolCenterCoord.longitude + 0.005 &&
+                userCoord.latitude >= schoolCenterCoord.latitude - 0.005 &&
+                userCoord.longitude >= schoolCenterCoord.longitude - 0.005
         ) {
             isInside = true;
         } else {

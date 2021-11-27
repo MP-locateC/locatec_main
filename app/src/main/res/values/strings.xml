@@ -3,6 +3,7 @@
     <string name="title_activity_maps">Map</string>
     <string name="menu_item_smoking">흡연구역</string>
     <string name="menu_item_trashcan">쓰레기통</string>
-    <string name="smoke_type">smoke</string>
+    <string name="smoke_type">smoking</string>
     <string name="trashcan_type">trash</string>
+    <string name="server_url">https://www.stmap.kro.kr/api</string>
 </resources>

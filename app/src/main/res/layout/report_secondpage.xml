@@ -51,6 +51,7 @@
             android:text="이미지" />
 
         <RadioGroup
+            android:id="@+id/imageRadioGroup"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">

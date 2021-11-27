@@ -12,7 +12,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RadioButton;
-import android.widget.Toast;
+import android.widget.RadioGroup;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
@@ -30,6 +30,7 @@ public class ReportSecondPage extends Fragment {
     Button goPrevBtn, submitBtn;
     TextInputLayout menu;
     AutoCompleteTextView menu_autocomplete;
+    RadioGroup imageRadioGroup;
     RadioButton addImageRBtn, removeImageRBtn;
     ImageView userAddImage;
 
@@ -83,6 +84,7 @@ public class ReportSecondPage extends Fragment {
     }
 
     public void bindingRadio(View v) {
+        imageRadioGroup =  (RadioGroup) v.findViewById(R.id.imageRadioGroup);
         addImageRBtn = (RadioButton) v.findViewById(R.id.addImageButton);
         removeImageRBtn = (RadioButton) v.findViewById(R.id.removeImageButton);
 
@@ -105,6 +107,8 @@ public class ReportSecondPage extends Fragment {
                 userAddImage.setImageResource(android.R.color.transparent);
             }
         });
+
+        imageRadioGroup.check(R.id.removeImageButton);
     }
 
     ActivityResultLauncher<Intent> someActivityResultLauncher = registerForActivityResult(
@@ -125,7 +129,5 @@ public class ReportSecondPage extends Fragment {
     public String getMenuText() {
         return menu_autocomplete.getEditableText().toString();
     }
-
-
 
 }
