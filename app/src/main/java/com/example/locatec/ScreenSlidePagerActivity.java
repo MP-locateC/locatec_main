@@ -100,7 +100,8 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
 
                 JSONObject body = new JSONObject();
                 String type = secondPage.getMenuText();
-                if(type == "흡연구역") {
+                Log.d("type", type);
+                if(type.equals("흡연구역")) {
                     body.put("type", "smoking");
                 } else {
                     body.put("type", "trash");
